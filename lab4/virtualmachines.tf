@@ -30,8 +30,8 @@ resource "random_password" "password" {
 }
 
 resource "azurerm_windows_virtual_machine" "virtual-machines" {
-  count               = 2
-  name                = "VM-${count.index}"
+  for_each            = toset(["VM1", "VM2"])
+  name                = each.value
   resource_group_name = azurerm_resource_group.resgrp.name
   location            = azurerm_resource_group.resgrp.location
   size                = var.VM_SIZE
@@ -39,7 +39,7 @@ resource "azurerm_windows_virtual_machine" "virtual-machines" {
   admin_password      = random_password.password.result
 
   network_interface_ids = [
-    azurerm_network_interface.nic[count.index].id,
+    azurerm_network_interface.nic[each.key].id,
   ]
 
   os_disk {
